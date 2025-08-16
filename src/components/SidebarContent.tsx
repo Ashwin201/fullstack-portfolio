@@ -1,4 +1,4 @@
-iimport Image from "next/image"
+import Image from "next/image"
 import React from 'react'
 import profilePic from "../../public/images/profile.jpg"
 import Link from "next/link"
