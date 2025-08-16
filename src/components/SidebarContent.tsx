@@ -1,4 +1,4 @@
-import Image from "next/image"
+iimport Image from "next/image"
 import React from 'react'
 import profilePic from "../../public/images/profile.jpg"
 import Link from "next/link"
@@ -22,7 +22,7 @@ const SidebarContent = () => {
                         A
                     </div>
                 ) : (
-                    <Image src={`${userData?.profile}`} alt="Profile" width={200} height={200} className=" object-cover -rotate-3 w-36 h-36 rounded-full border-4 border-gray-400 dark:border-gray-900" />
+                    <Image src={`${userData?.profile}`} alt="Profile" width={200} height={200} className=" object-cover w-36 h-36 rounded-full border-4 border-gray-400 dark:border-gray-900" />
                 )}
             </AnimateOnVisible>
             <AnimateOnVisible animation={"slideUp"} duration={0.9} className=" text-3xl font-bold text-center   theme-gradient-text">Ashmin Sharma</AnimateOnVisible>
