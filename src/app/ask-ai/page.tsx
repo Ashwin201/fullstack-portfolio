@@ -224,9 +224,9 @@ const AskAIPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen relative overflow-hidden px-4 md:px-8 lg:px-4">
       <Navbar />
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 overflow-hidden">
+      <div className="flex-1 flex flex-col justify-center items-start max-w-4xl mx-auto w-full px-4 overflow-hidden">
         {/* Header - Fixed */}
         <div className="flex-shrink-0 flex flex-col gap-2 pt-8 pb-6 border-b">
           <div className="flex items-center gap-2">
@@ -330,7 +330,7 @@ const AskAIPage = () => {
         </ScrollArea>
 
         {/* Input Area - Fixed */}
-        <div className="flex-shrink-0 flex gap-2 pt-4 pb-6 border-t">
+        <div className="flex-shrink-0 flex gap-2 pt-4 pb-6 border-t w-full sticky bottom-0">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
