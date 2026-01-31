@@ -11,6 +11,7 @@ import github from "../../public/images/github.webp";
 import docker from "../../public/images/docker-removebg-preview.webp";
 import postman from "../../public/images/postman-removebg-preview.webp";
 import { Cpp, Java } from "../../public/SkillIcons";
+import aws from "../../public/images/aws.svg";
 import {
     // FireBase,
     MongoDb,
@@ -225,6 +226,14 @@ const Skills = () => {
                         </div>
                         <span className="  font-semibold mt-2 text-text1  text-[12.5px] text-center">
                             Postman
+                        </span>
+                    </AnimateOnVisible>
+                    <AnimateOnVisible animation={"fade"} duration={1.0} className=" flex flex-col items-center ">
+                        <div className="rounded-[50%] w-[50px] h-[50px] shadow-lg p-[6px]  flex justify-center items-center">
+                            <Image src={aws} alt="AWS" className="w-[90px] " />
+                        </div>
+                        <span className="  font-semibold mt-2 text-text1  text-[12.5px] text-center">
+                            AWS
                         </span>
                     </AnimateOnVisible>
                 </div>

@@ -20,6 +20,7 @@ import MobileSidebar from './MobileSidebar'
 import Image from 'next/image'
 import { RxCross2 } from 'react-icons/rx'
 import { AlignRight, CircleUserRound, FolderDown, FolderKanban, HandHelping, HomeIcon, House, Info, MessageSquareCode } from 'lucide-react'
+import AskAI from './AskAI'
 import { useSession } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
 import AdminNavbar from './AdminComponents/AdminNavbar'
@@ -93,14 +94,12 @@ const Navbar = () => {
                         </div>
                         <MobileSidebar />
 
+                        <div className='flex w-fit text-base font-medium items-center gap-3'>
+                            <AskAI />
+                        </div>
                         <div className=' md:hidden'>
                             <SidebarTrigger />
                         </div>
-                        <a href={`${userData?.resume}`} aria-label='Resume a ' className='  hidden md:flex  w-fit text-base font-medium  items-center gap-3 '>
-                            <Button className=' flex items-center gap-2 justify-center'>
-                                <FolderDown size={20} />Download CV
-                            </Button>
-                        </a>
                         {/* <Button className="flex lg:hidden">
                             <a href={"#"} aria-label="CV a" > Download CV</a>
                         </Button> */}

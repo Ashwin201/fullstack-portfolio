@@ -26,7 +26,7 @@ const Footer = () => {
                         <h4 className="text-xl font-bold mb-4   theme-gradient-text">Connect with me</h4>
                         <div className="flex items-center space-x-4">
                             <Link
-                                href="https://instagram.com/ashwin.203?igshid=YmMyMTA2M2Y="
+                                href="https://instagram.com/ashmin_sharma_"
                                 aria-label="Insta"
                                 target="_blank"
                             >

@@ -21,9 +21,18 @@ const removeImage = async (publicId: string): Promise<void> => {
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const { publicId } = await req.json();
-  // console.log(req);
   try {
+    const body = await req.json();
+    // Handle both string and object formats
+    const publicId = typeof body === 'string' ? body : body.publicId || body;
+    
+    if (!publicId) {
+      return NextResponse.json(
+        { message: "Public ID is required" },
+        { status: 400 }
+      );
+    }
+    
     await removeImage(publicId);
     return NextResponse.json({ message: "success" }, { status: 200 });
   } catch (error) {

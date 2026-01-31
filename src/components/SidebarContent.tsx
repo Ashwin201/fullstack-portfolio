@@ -41,7 +41,7 @@ const SidebarContent = () => {
 
             <nav className=" flex items-center justify-center sm:justify-start mt-1">
                 <Link
-                    href="https://instagram.com/ashwin.203?igshid=YmMyMTA2M2Y="
+                    href="https://instagram.com/ashmin_sharma_"
                     className="mr-3 text-gray-900 dark:text-gray-300"
                     aria-label="Insta"
                     target="_blank"
@@ -77,7 +77,6 @@ const SidebarContent = () => {
                         <FolderDown size={22} />  Download CV
                     </Link>
                 </Button>
-
             </div>
 
         </div>

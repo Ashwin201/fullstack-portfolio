@@ -12,6 +12,7 @@ import Link from "next/link";
 import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { Badge, ChevronRight, CircleUser, Folder, FolderDown, Github, Linkedin, Twitter } from "lucide-react";
+import { useAbout } from "@/context/AboutProvider";
 import AnimateOnVisible from "./Animations";
 import Image from "next/image";
 const PlayerWithNoSSR = dynamic(
@@ -19,6 +20,7 @@ const PlayerWithNoSSR = dynamic(
   { ssr: false }
 );
 function HomePage() {
+  const { userData } = useAbout();
   return (
     <div className="sm:container px-4    flex flex-col justify-center">
       <section className=" py-10 mb-2 sm:py-14  sm:mb-4  flex flex-col md:flex-row items-center gap-8 md:gap-16">
@@ -43,15 +45,15 @@ function HomePage() {
                 View My Work
               </Button>
             </Link>
-            <Link href={"/#contact"} className=" ">
-              <Button size="sm" variant="outline">
-                <CircleUser size={19} /> &nbsp;  Contact Me
+            <Link href={`${userData?.resume}`} className=" " target="_blank" aria-label="Download CV">
+              <Button size="sm" variant="outline" className=" text-sm font-medium">
+                <FolderDown size={19} /> &nbsp;  Download CV
               </Button>
             </Link>
           </AnimateOnVisible>
           <AnimateOnVisible animation={"slideRight"} duration={0.9} className="flex items-center space-x-4 pt-4">
             <Link
-              href="https://instagram.com/ashwin.203?igshid=YmMyMTA2M2Y="
+              href="https://instagram.com/ashmin_sharma_"
               aria-label="Insta"
               target="_blank"
             >

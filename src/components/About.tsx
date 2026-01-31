@@ -81,7 +81,7 @@ const About = () => {
 
                 <AnimateOnVisible animation={"slideUp"} duration={1.0} className=" flex  my-6">
                     <Link
-                        href="https://instagram.com/ashwin.203?igshid=YmMyMTA2M2Y="
+                        href="https://instagram.com/ashmin_sharma_"
                         className="mr-3"
                         aria-label="Instagram"
                         target="_blank"

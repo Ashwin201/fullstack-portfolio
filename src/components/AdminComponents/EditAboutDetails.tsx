@@ -33,6 +33,7 @@ const EditAboutDetails: React.FC<EditAboutDetailsProps> = ({ data, id }) => {
   const [resumeLink, setResumeLink] = useState<string>("");
   const [image, setImage] = useState<string>("")
   const [publicId, setPublicId] = useState<string>("")
+  const [oldPublicId, setOldPublicId] = useState<string>("") // Store old publicId to delete when new image is uploaded
   const [totalProjects, setTotalProjects] = useState<string>("")
   const [totalExperience, setTotalExperience] = useState<string>("")
   const router = useRouter();
@@ -51,6 +52,14 @@ const EditAboutDetails: React.FC<EditAboutDetailsProps> = ({ data, id }) => {
     setDescriptions((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Extract publicId from Cloudinary URL
+  const extractPublicIdFromUrl = (url: string): string => {
+    if (!url) return "";
+    // Cloudinary URL format: https://res.cloudinary.com/{cloud_name}/image/upload/{public_id}.{format}
+    const match = url.match(/\/upload\/(?:v\d+\/)?([^\.]+)/);
+    return match ? match[1] : "";
+  };
+
   // To get data
   useEffect(() => {
     const inItValues = () => {
@@ -60,7 +69,11 @@ const EditAboutDetails: React.FC<EditAboutDetailsProps> = ({ data, id }) => {
         setShortdesc(data.shortDesc);
         setDescriptions(data.description);
         setResumeLink(data.resume);
-        setImage(data.image)
+        setImage(data.image);
+        // Extract and store the old publicId from existing image URL
+        const extractedPublicId = extractPublicIdFromUrl(data.image);
+        setOldPublicId(extractedPublicId);
+        setPublicId(extractedPublicId);
         setTotalProjects(data?.totalProjects)
         setTotalExperience(data?.totalExperience)
       } catch (error) {
@@ -72,14 +85,29 @@ const EditAboutDetails: React.FC<EditAboutDetailsProps> = ({ data, id }) => {
 
 
   // Handle Image upload
-  const handleImageUpload = (result: any) => {
+  const handleImageUpload = async (result: any) => {
     console.log(result);
     const info = result.info;
     if ("secure_url" in info && "public_id" in info) {
       const url = info.secure_url;
       const public_id = info.public_id;
+      
+      // Delete old image if it exists
+      if (oldPublicId && oldPublicId !== public_id) {
+        try {
+          await fetch(`/api/removeImage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(oldPublicId),
+          });
+        } catch (error) {
+          console.log("Error deleting old image:", error);
+        }
+      }
+      
       setImage(url);
       setPublicId(public_id);
+      setOldPublicId(public_id); // Update old publicId to the new one
     } else {
       // Handle the case when the image limit is reached (display a message, etc.)
       console.log("Image upload fail");
@@ -98,6 +126,7 @@ const EditAboutDetails: React.FC<EditAboutDetailsProps> = ({ data, id }) => {
       if (res.ok) {
         setImage("");
         setPublicId("");
+        setOldPublicId("");
       }
     } catch (error) {
       console.log(error);
@@ -151,10 +180,8 @@ const EditAboutDetails: React.FC<EditAboutDetailsProps> = ({ data, id }) => {
           <h6 className="  text-lg mb-1 ml-1 w-full flex justify-center items-center  font-semibold text-gray-900 dark:text-gray-300 ">
             Add Your Profile Picture
           </h6>
-          {image ? (
-            <div
-              className=" w-full flex  justify-center items-center  rounded-md border-1 border-gray-200 dark:border-gray-800 "
-            >
+          <div className=" w-full flex flex-col gap-3 justify-center items-center  rounded-md border-1 border-gray-200 dark:border-gray-800 ">
+            {image && (
               <div className="relative border-2 rounded-md">
                 <img
                   src={image}
@@ -170,11 +197,8 @@ const EditAboutDetails: React.FC<EditAboutDetailsProps> = ({ data, id }) => {
                   <TiDelete size={18} />
                 </span>
               </div>
-            </div>
-          ) : (
-            <div
-              className=" w-full flex  justify-center items-center  rounded-md border-1 border-gray-200 dark:border-gray-800 "
-            >
+            )}
+            <div className="w-full flex justify-center">
               <CldUploadButton
                 uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET}
                 onUpload={handleImageUpload}
@@ -182,12 +206,11 @@ const EditAboutDetails: React.FC<EditAboutDetailsProps> = ({ data, id }) => {
               >
                 <BiImageAdd size={30} />
                 <h3 className="   text-sm font-medium text-gray-700 dark:text-gray-300 ">
-                  Upload Image
+                  {image ? "Change Image" : "Upload Image"}
                 </h3>
               </CldUploadButton>
             </div>
-          )
-          }
+          </div>
 
         </div>
         <div className=" w-full">
