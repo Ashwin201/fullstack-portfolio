@@ -44,22 +44,8 @@ const MobileSidebar = () => {
                             rounded-full border-2 border-gray-200 dark:border-gray-900" />
                         )}
                     </DialogTrigger>
-                    <DialogContent className={`dark:bg-gradient-to-t dark:from-zinc-900 dark:to-gray-950  bg-gradient-to-t  from-white to-slate-50`}>
-                        <DialogHeader>
-                            <DialogTitle className=" sr-only">Are you absolutely sure?</DialogTitle>
-                            <DialogDescription>
-
-                                <div className=" flex flex-1 justify-center w-full h-full items-center  mb-8">
+                    <DialogContent className={`dark:bg-gradient-to-t dark:from-zinc-900 dark:to-gray-950 w-full h-fit flex flex-col justify-center items-center   bg-gradient-to-t  from-white to-slate-50`}>
                                     <Sidebar />
-                                </div>
-                            </DialogDescription>
-                        </DialogHeader>
-                        {/* <DialogFooter>
-                                <Button>Submit</Button>
-                                
-                                    <Button variant="outline">Cancel</Button>
-                                </DialogClose>
-                            </DialogFooter> */}
                     </DialogContent>
                 </Dialog>
 

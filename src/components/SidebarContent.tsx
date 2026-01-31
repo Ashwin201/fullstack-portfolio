@@ -66,7 +66,7 @@ const SidebarContent = () => {
                 </Link>
             </nav>
 
-            <div className=" flex justify-center items-center  flex-col min-[400px]:flex-row lg:flex-col  gap-3 mt-2 px-4 w-full">
+            <div className=" flex justify-center items-center     gap-3 mt-2 px-4 w-full">
                 <Button variant={"outline"} className="w-full" >
                     <Link href={"mailto:ashminsharma203@gmail.com"} aria-label="Get In Touch" className="  flex items-center gap-2 text-base font-medium" >
                         <CircleUser size={22} /> Get In Touch

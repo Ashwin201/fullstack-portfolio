@@ -3,7 +3,6 @@ import { connectToDb } from "@/mongodb/database";
 import About from "@/models/About";
 import Experience from "@/models/Experience";
 import Project from "@/models/Projects";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Configure route segment for longer timeout (Pro plan: 60s, Hobby: 10s)
 export const maxDuration = 60; // Maximum duration for Pro plan
@@ -174,69 +173,116 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if Gemini API key is configured
-    const apiKey = process.env.GEMINI_API_KEY;
+    // Use Groq API (free tier, fast inference)
+    // Get free API key from https://console.groq.com/
+    const apiKey = process.env.GROQ_API_KEY;
     
     if (!apiKey) {
       return NextResponse.json(
         { 
           error: "API key not configured", 
-          response: "The AI service is not configured. Please contact the administrator." 
+          response: "The AI service requires a free API key. Please add GROQ_API_KEY to your environment variables. Get a free key at https://console.groq.com/" 
         },
         { status: 500 }
       );
     }
 
-    // Initialize Google Generative AI
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // Use only gemini-3-flash-preview model with optimized settings for speed
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-3-flash-preview",
-      generationConfig: {
-        temperature: 0.9, // Higher temperature for more natural, varied language
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 800, // Reduced from 1024 for faster responses
-      },
-    });
-
-    // Convert messages to the format expected by Gemini
-    const conversationHistory = messages.slice(-20).map((msg: Message) => ({
-      role: msg.role === "user" ? "user" : "model",
-      parts: [{ text: msg.content }],
+    // Build conversation messages for the AI
+    const conversationMessages = messages.slice(-20).map((msg: Message) => ({
+      role: msg.role === "user" ? "user" : "assistant",
+      content: msg.content,
     }));
 
-    // Include context with the conversation
-    // For first message, prepend context to the first user message
-    // For follow-ups, prepend context to maintain awareness of portfolio data
-    const firstUserMessage = conversationHistory.find((msg) => msg.role === "user");
-    if (firstUserMessage) {
-      if (messages.length === 1) {
-        // First message - include full context with instructions
-        firstUserMessage.parts[0].text = `${context}\n\nNow, based on the above information, answer the user's question naturally in your own words. Do not copy-paste the information. Paraphrase and explain it conversationally:\n\n${firstUserMessage.parts[0].text}`;
+    // Prepare the system prompt with portfolio context
+    const systemPrompt = `${context}\n\nNow, based on the above information, answer the user's question naturally in your own words. Do not copy-paste the information. Paraphrase and explain it conversationally.`;
+
+    // Use Groq API with Llama 3.1 8B (free and very fast)
+    const apiUrl = "https://api.groq.com/openai/v1/chat/completions";
+    
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    };
+
+    // Add timeout for API call (15 seconds max)
+    const apiTimeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('AI API timeout')), 15000)
+    );
+
+    const apiPromise = (async () => {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model: "llama-3.1-8b-instant", // Free model on Groq - very fast
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...conversationMessages,
+          ],
+          temperature: 0.9,
+          max_tokens: 800,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Groq API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
+    })();
+
+    const aiResponse = await Promise.race([apiPromise, apiTimeout]) as string;
+
+    // Extract suggested questions if present in the AI response
+    // Try multiple patterns to catch different formats
+    let suggestedQuestions: string[] = [];
+    let finalAiResponse = aiResponse;
+
+    // Pattern 1: "If you want i can also help you with: \n[question 1]\n[question 2]"
+    const pattern1 = /If you want i can also help you with:[\s\S]*?\n\s*([^\n]+)\n\s*([^\n]+)/i;
+    const match1 = aiResponse.match(pattern1);
+    
+    // Pattern 2: Questions with bullet points
+    const pattern2 = /If you want i can also help you with:[\s\S]*?[•\-\*]\s*([^\n]+)[\s\S]*?[•\-\*]\s*([^\n]+)/i;
+    const match2 = aiResponse.match(pattern2);
+    
+    // Pattern 3: Just look for numbered or bulleted questions at the end
+    const pattern3 = /(?:If you want|You might also|I can also help)[\s\S]*?[•\-\*1-2]\s*([^\n]+)[\s\S]*?[•\-\*1-2]\s*([^\n]+)/i;
+    const match3 = aiResponse.match(pattern3);
+
+    if (match1) {
+      suggestedQuestions = [match1[1].trim(), match1[2].trim()];
+      finalAiResponse = aiResponse.replace(match1[0], '').trim();
+    } else if (match2) {
+      suggestedQuestions = [match2[1].trim(), match2[2].trim()];
+      finalAiResponse = aiResponse.replace(match2[0], '').trim();
+    } else if (match3) {
+      suggestedQuestions = [match3[1].trim(), match3[2].trim()];
+      finalAiResponse = aiResponse.replace(match3[0], '').trim();
+    } else {
+      // If AI didn't provide suggested questions, generate them based on the user's question
+      const userQuestion = lastMessage.content.toLowerCase();
+      if (userQuestion.includes("project") || userQuestion.includes("work")) {
+        suggestedQuestions = ["What technologies do you use?", "What's your experience?"];
+      } else if (userQuestion.includes("skill") || userQuestion.includes("tech")) {
+        suggestedQuestions = ["What projects have you worked on?", "What's your experience?"];
+      } else if (userQuestion.includes("experience") || userQuestion.includes("job")) {
+        suggestedQuestions = ["What projects did you work on?", "What technologies do you know?"];
+      } else if (userQuestion.includes("contact") || userQuestion.includes("email")) {
+        suggestedQuestions = ["What services do you offer?", "Can I see your resume?"];
+      } else if (userQuestion.includes("service")) {
+        suggestedQuestions = ["How can I contact you?", "What's your experience?"];
       } else {
-        // Follow-up messages - include context reminder to maintain awareness
-        firstUserMessage.parts[0].text = `${context}\n\n[Continue the conversation using the portfolio information above. Answer naturally in your own words, not by copying the text. Previous messages are below for context.]\n\n${firstUserMessage.parts[0].text}`;
+        suggestedQuestions = ["Tell me about your projects", "What technologies do you use?"];
       }
     }
 
-    // Add timeout for Gemini API call (8 seconds max)
-    const geminiTimeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Gemini API timeout')), 8000)
-    );
-
-    const geminiPromise = (async () => {
-      const result = await model.generateContent({
-        contents: conversationHistory,
-      });
-      const response = await result.response;
-      return response.text();
-    })();
-
-    const aiResponse = await Promise.race([geminiPromise, geminiTimeout]) as string;
-
-    return NextResponse.json({ response: aiResponse });
+    return NextResponse.json({ 
+      response: finalAiResponse, 
+      suggestedQuestions 
+    });
   } catch (error: any) {
     console.error("Error in ask-ai route:", error);
     console.error("Error details:", error.message, error.stack);

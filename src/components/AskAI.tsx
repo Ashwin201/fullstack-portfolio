@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -61,7 +62,7 @@ const AskAI = () => {
         if (prev.length === 0) {
           return [{
             role: "assistant",
-            content: "Hi! I'm Ashmin. How can I help you today?",
+            content: "Hi! I'm Ashmin. How can I help you?",
           }];
         }
         return prev;
@@ -255,8 +256,8 @@ const AskAI = () => {
           Ask AI
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl h-[600px] flex flex-col p-0 dark:bg-gradient-to-t dark:from-zinc-900 dark:to-gray-950 bg-gradient-to-t from-white to-zinc-50">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0 dark:bg-gradient-to-t dark:from-zinc-900 dark:to-gray-950 bg-gradient-to-t from-white to-zinc-50">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-xl font-bold theme-gradient-text">
             <Bot className="h-5 w-5" />
             Ask Me Anything
@@ -266,7 +267,7 @@ const AskAI = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0 overflow-y-auto">
           <div className="px-6 py-4 space-y-4">
             {messages.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
@@ -358,16 +359,16 @@ const AskAI = () => {
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
+        <DialogFooter className="px-6 pb-6 pt-4 border-t w-full flex-shrink-0">
 
-        <div className="px-6 pb-6 pt-4 border-t">
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything..."
               disabled={loading}
-              className="flex-1"
+              className="flex-1 "
             />
             <Button
               onClick={() => handleSend()}
@@ -382,7 +383,8 @@ const AskAI = () => {
               )}
             </Button>
           </div>
-        </div>
+        </DialogFooter>
+
       </DialogContent>
     </Dialog>
   );
