@@ -262,7 +262,7 @@ const AskAI = () => {
             Ask Me Anything
           </DialogTitle>
           <DialogDescription className="text-sm  text-start text-muted-foreground mt-2">
-            Ask me anything about my skills, experience, projects, or background. I&apos;ll answer based on my portfolio information.
+            Feel free to ask me anything about my skills, experience, projects, or background. I&apos;m here to help you learn more about my work!
           </DialogDescription>
         </DialogHeader>
 
