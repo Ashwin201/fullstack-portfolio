@@ -255,9 +255,9 @@ const AskAI = () => {
           Ask AI
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl h-[600px] flex flex-col p-0">
+      <DialogContent className="max-w-2xl h-[600px] flex flex-col p-0 dark:bg-gradient-to-t dark:from-zinc-900 dark:to-gray-950 bg-gradient-to-t from-white to-zinc-50">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+          <DialogTitle className="flex items-center gap-2 text-xl font-bold theme-gradient-text">
             <Bot className="h-5 w-5" />
             Ask Me Anything
           </DialogTitle>
