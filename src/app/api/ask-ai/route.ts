@@ -5,26 +5,42 @@ import Experience from "@/models/Experience";
 import Project from "@/models/Projects";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Configure route segment for longer timeout (Pro plan: 60s, Hobby: 10s)
+export const maxDuration = 60; // Maximum duration for Pro plan
+export const runtime = 'nodejs';
+
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-// Fetch all portfolio data dynamically
+// Fetch all portfolio data dynamically with timeout
 async function fetchPortfolioData() {
-  await connectToDb();
+  const timeoutPromise = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error('Database query timeout')), 5000)
+  );
   
-  const [aboutData, experienceData, projectData] = await Promise.all([
-    About.find().lean(),
-    Experience.find().sort({ _id: -1 }).lean(),
-    Project.find().lean(),
-  ]);
+  const dataPromise = (async () => {
+    await connectToDb();
+    
+    const [aboutData, experienceData, projectData] = await Promise.all([
+      About.find().lean().limit(1), // Limit to 1 about entry
+      Experience.find().sort({ _id: -1 }).lean().limit(10), // Limit to 10 experiences
+      Project.find().lean().limit(20), // Limit to 20 projects
+    ]);
 
-  return {
-    about: aboutData,
-    experience: experienceData,
-    projects: projectData,
-  };
+    return {
+      about: aboutData,
+      experience: experienceData,
+      projects: projectData,
+    };
+  })();
+
+  return Promise.race([dataPromise, timeoutPromise]) as Promise<{
+    about: any[];
+    experience: any[];
+    projects: any[];
+  }>;
 }
 
 // Format portfolio data into a context string for AI
@@ -174,14 +190,14 @@ export async function POST(req: NextRequest) {
     // Initialize Google Generative AI
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // Use only gemini-3-flash-preview model
+    // Use only gemini-3-flash-preview model with optimized settings for speed
     const model = genAI.getGenerativeModel({ 
       model: "gemini-3-flash-preview",
       generationConfig: {
         temperature: 0.9, // Higher temperature for more natural, varied language
         topK: 40,
         topP: 0.95,
-        maxOutputTokens: 1024,
+        maxOutputTokens: 800, // Reduced from 1024 for faster responses
       },
     });
 
@@ -205,12 +221,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const result = await model.generateContent({
-      contents: conversationHistory,
-    });
+    // Add timeout for Gemini API call (8 seconds max)
+    const geminiTimeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Gemini API timeout')), 8000)
+    );
 
-    const response = await result.response;
-    const aiResponse = response.text();
+    const geminiPromise = (async () => {
+      const result = await model.generateContent({
+        contents: conversationHistory,
+      });
+      const response = await result.response;
+      return response.text();
+    })();
+
+    const aiResponse = await Promise.race([geminiPromise, geminiTimeout]) as string;
 
     return NextResponse.json({ response: aiResponse });
   } catch (error: any) {
