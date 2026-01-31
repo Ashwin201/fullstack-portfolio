@@ -48,16 +48,16 @@ export function NavMain({
                     >
                         <SidebarMenuItem>
                             <CollapsibleTrigger asChild>
-                                <SidebarMenuButton tooltip={item.title} className={`${!open && "-ml-3"}`}>
-                                    <a href={item.url} className={`${open && "py-1 px-2"} flex gap-2 text-[14.5px] font-medium  items-center`}>
+                                <a href={item.url} className={`${open && "py-1 px-2"} flex gap-2 text-[14.5px] font-medium  items-center`}>
+                                    <SidebarMenuButton tooltip={item.title} className={`${!open && "-ml-3"}`}>
                                         {item.icon && item.icon}
                                         {
                                             open &&
                                             <span>{item.title}</span>
                                         }
-                                    </a>
-                                    {/* <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" /> */}
-                                </SidebarMenuButton>
+                                        {/* <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" /> */}
+                                    </SidebarMenuButton>
+                                </a>
                             </CollapsibleTrigger>
 
                         </SidebarMenuItem>

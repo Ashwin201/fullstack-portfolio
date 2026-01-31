@@ -20,7 +20,7 @@ import MobileSidebar from './MobileSidebar'
 import Image from 'next/image'
 import { RxCross2 } from 'react-icons/rx'
 import { AlignRight, CircleUserRound, FolderDown, FolderKanban, HandHelping, HomeIcon, House, Info, MessageSquareCode } from 'lucide-react'
-import AskAI from './AskAI'
+import { Sparkles } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
 import AdminNavbar from './AdminComponents/AdminNavbar'
@@ -94,9 +94,17 @@ const Navbar = () => {
                         </div>
                         <MobileSidebar />
 
-                        <div className='flex w-fit text-base font-medium items-center gap-3'>
-                            <AskAI />
-                        </div>
+                        {
+                            pathName !== "/ask-ai" &&
+                            <div className='flex w-fit text-sm font-medium items-center gap-3'>
+                                <Link href="/ask-ai">
+                                    <Button className="flex cursor-pointer items-center gap-2 w-full justify-center">
+                                        <Sparkles className="h-4 w-4" />
+                                        Ask AI
+                                    </Button>
+                                </Link>
+                            </div>
+                        }
                         <div className=' md:hidden'>
                             <SidebarTrigger />
                         </div>
