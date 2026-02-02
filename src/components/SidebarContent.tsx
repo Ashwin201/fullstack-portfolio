@@ -13,7 +13,7 @@ const SidebarContent = () => {
     // console.log(userData)
 
     return (
-        <div className=' flex flex-col items-center justify-center gap-5'>
+        <div className=' flex flex-col items-center justify-center gap-5 overflow-y-auto'>
             <AnimateOnVisible animation={"zoomOut"} duration={0.8}>
 
                 {loader || !userData?.profile ? (
