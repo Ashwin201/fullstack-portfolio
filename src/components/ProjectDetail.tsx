@@ -61,7 +61,7 @@ const ProjectDetail = ({ id }: { id: string }) => {
                       alt="Project Image"
                       width={100}
                       height={100}
-                      className="w-full h-auto lg:h-[250px]  object-cover object-center rounded-md"
+                      className="w-full h-auto lg:h-[250px]  object-contain object-center rounded-md"
                     />
 
                     {currentIndex > 0 && (
